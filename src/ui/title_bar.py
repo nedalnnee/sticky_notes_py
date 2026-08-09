@@ -66,9 +66,19 @@ class TitleBar(QFrame):
         self.btn_pin.clicked.connect(self._toggle_pin)
         layout.addWidget(self.btn_pin)
 
+        # Permanent Trash Delete button (with confirmation)
+        self.btn_trash = QPushButton()
+        self.btn_trash.setObjectName("DeleteButton")
+        self.btn_trash.setProperty("class", "TitleBarButton")
+        self.btn_trash.setIconSize(icon_size)
+        self.btn_trash.setToolTip("Delete Note Permanently")
+        self.btn_trash.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_trash.clicked.connect(self._confirm_delete_permanently)
+        layout.addWidget(self.btn_trash)
+
         # Close button (Hides note to library)
         self.btn_delete = QPushButton()
-        self.btn_delete.setObjectName("DeleteButton")
+        self.btn_delete.setObjectName("CloseButton")
         self.btn_delete.setProperty("class", "TitleBarButton")
         self.btn_delete.setIconSize(icon_size)
         self.btn_delete.setToolTip("Close Note (Saved in Notes Library)")
@@ -87,6 +97,7 @@ class TitleBar(QFrame):
 
         self.btn_add.setIcon(load_svg_icon("plus", color))
         self.btn_color.setIcon(load_svg_icon("palette", color))
+        self.btn_trash.setIcon(load_svg_icon("trash", color))
         self.btn_delete.setIcon(load_svg_icon("close", color))
         self._update_pin_icon()
 
@@ -114,7 +125,7 @@ class TitleBar(QFrame):
         action_title.triggered.connect(self._prompt_edit_title)
 
         menu.addSeparator()
-        
+
         # Color palettes header
         menu.addSection("Color Themes")
         for theme_key, theme_obj in THEMES.items():
@@ -124,7 +135,7 @@ class TitleBar(QFrame):
         menu.addSeparator()
 
         # Delete permanently option
-        action_delete = menu.addAction("Delete Permanently")
+        action_delete = menu.addAction("Delete Permanently...")
         action_delete.triggered.connect(self._confirm_delete_permanently)
 
         menu.exec(self.btn_color.mapToGlobal(QPoint(0, self.btn_color.height())))
@@ -139,6 +150,17 @@ class TitleBar(QFrame):
         )
         if ok:
             self.title_edited.emit(text.strip())
+
+    def _confirm_delete_permanently(self):
+        reply = QMessageBox.question(
+            self,
+            "Delete Note",
+            "Are you sure you want to permanently delete this note?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            self.delete_permanently_requested.emit()
 
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
@@ -165,14 +187,3 @@ class TitleBar(QFrame):
             if hasattr(self.parent_window, "save_geometry_state"):
                 self.parent_window.save_geometry_state()
             event.accept()
-
-    def _confirm_delete_permanently(self):
-        reply = QMessageBox.question(
-            self,
-            "Delete Note",
-            "Are you sure you want to permanently delete this note?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No
-        )
-        if reply == QMessageBox.StandardButton.Yes:
-            self.delete_permanently_requested.emit()
