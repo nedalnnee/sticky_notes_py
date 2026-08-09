@@ -84,6 +84,7 @@ class StickyNotesApp:
         win.new_note_requested.connect(self.create_new_note)
         win.close_requested.connect(self.close_note_to_library)
         win.delete_permanently_requested.connect(self.delete_note_permanently)
+        win.note_updated.connect(self._sync_tray_library)
         win.show()
         if note.id:
             self.windows[note.id] = win

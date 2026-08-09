@@ -122,6 +122,14 @@ class DatabaseManager:
             """, (content, time.time(), note_id))
             conn.commit()
 
+    def update_title(self, note_id: int, title: str):
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE notes SET title = ?, updated_at = ? WHERE id = ?
+            """, (title, time.time(), note_id))
+            conn.commit()
+
     def update_theme(self, note_id: int, theme_name: str):
         with self.get_connection() as conn:
             cursor = conn.cursor()

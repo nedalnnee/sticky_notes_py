@@ -1,6 +1,6 @@
 from PyQt6.QtCore import Qt, QPoint, QSize, pyqtSignal
 from PyQt6.QtWidgets import (
-    QFrame, QHBoxLayout, QLabel, QPushButton, QMenu, QWidget, QMessageBox
+    QFrame, QHBoxLayout, QLabel, QPushButton, QMenu, QWidget, QMessageBox, QInputDialog
 )
 
 from src.models import THEMES, NoteTheme
@@ -13,8 +13,9 @@ class TitleBar(QFrame):
     delete_permanently_requested = pyqtSignal()     # Delete permanently from database
     pin_toggled = pyqtSignal(bool)
     theme_changed = pyqtSignal(str)
+    title_edited = pyqtSignal(str)
 
-    def __init__(self, parent: QWidget, is_pinned: bool = True, current_theme: NoteTheme = None):
+    def __init__(self, parent: QWidget, is_pinned: bool = True, current_theme: NoteTheme = None, initial_title: str = "Sticky Note"):
         super().__init__(parent)
         self.setObjectName("TitleBar")
         self.parent_window = parent
@@ -23,10 +24,10 @@ class TitleBar(QFrame):
         self._drag_position = QPoint()
         self._is_dragging = False
 
-        self._init_ui()
+        self._init_ui(initial_title)
         self.update_theme_icons(self.current_theme)
 
-    def _init_ui(self):
+    def _init_ui(self, initial_title: str):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(8, 4, 8, 4)
         layout.setSpacing(4)
@@ -42,12 +43,13 @@ class TitleBar(QFrame):
         self.btn_add.clicked.connect(self.new_note_requested.emit)
         layout.addWidget(self.btn_add)
 
-        # Spacer/Title Drag region label
-        self.lbl_title = QLabel("Sticky Note")
+        # Dynamic Title Label
+        self.lbl_title = QLabel(initial_title)
         self.lbl_title.setObjectName("TitleLabel")
+        self.lbl_title.setToolTip("Double-click or use Options menu to edit custom title")
         layout.addWidget(self.lbl_title, 1)
 
-        # Theme color picker button
+        # Theme & Options button
         self.btn_color = QPushButton()
         self.btn_color.setToolTip("Options & Color Themes")
         self.btn_color.setProperty("class", "TitleBarButton")
@@ -75,6 +77,9 @@ class TitleBar(QFrame):
         layout.addWidget(self.btn_delete)
 
         self.setFixedHeight(34)
+
+    def set_title_text(self, title_text: str):
+        self.lbl_title.setText(title_text)
 
     def update_theme_icons(self, theme: NoteTheme):
         self.current_theme = theme
@@ -104,6 +109,11 @@ class TitleBar(QFrame):
 
     def _show_color_menu(self):
         menu = QMenu(self)
+
+        action_title = menu.addAction("Edit Note Title...")
+        action_title.triggered.connect(self._prompt_edit_title)
+
+        menu.addSeparator()
         
         # Color palettes header
         menu.addSection("Color Themes")
@@ -119,16 +129,23 @@ class TitleBar(QFrame):
 
         menu.exec(self.btn_color.mapToGlobal(QPoint(0, self.btn_color.height())))
 
-    def _confirm_delete_permanently(self):
-        reply = QMessageBox.question(
+    def _prompt_edit_title(self):
+        current_custom_title = self.parent_window.note.title if hasattr(self.parent_window, "note") else ""
+        text, ok = QInputDialog.getText(
             self,
-            "Delete Note",
-            "Are you sure you want to permanently delete this note?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No
+            "Custom Note Title",
+            "Enter custom title (leave empty to auto-extract first 2 words):",
+            text=current_custom_title
         )
-        if reply == QMessageBox.StandardButton.Yes:
-            self.delete_permanently_requested.emit()
+        if ok:
+            self.title_edited.emit(text.strip())
+
+    def mouseDoubleClickEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._prompt_edit_title()
+            event.accept()
+        else:
+            super().mouseDoubleClickEvent(event)
 
     # Dragging logic
     def mousePressEvent(self, event):
@@ -145,7 +162,17 @@ class TitleBar(QFrame):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self._is_dragging = False
-            # Signal parent to persist new geometry
             if hasattr(self.parent_window, "save_geometry_state"):
                 self.parent_window.save_geometry_state()
             event.accept()
+
+    def _confirm_delete_permanently(self):
+        reply = QMessageBox.question(
+            self,
+            "Delete Note",
+            "Are you sure you want to permanently delete this note?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            self.delete_permanently_requested.emit()

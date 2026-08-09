@@ -13,6 +13,7 @@ class NoteWindow(QWidget):
     new_note_requested = pyqtSignal()
     close_requested = pyqtSignal(int)               # Hide & mark is_open=0 in database
     delete_permanently_requested = pyqtSignal(int)  # Remove completely from database
+    note_updated = pyqtSignal()                    # Signal app to sync Notes Library in tray
 
     def __init__(self, note: Note, db_manager: DatabaseManager):
         super().__init__()
@@ -66,12 +67,18 @@ class NoteWindow(QWidget):
         central_layout.setSpacing(0)
 
         # Custom Title Bar
-        self.title_bar = TitleBar(self, is_pinned=self.note.is_pinned, current_theme=self.note.theme)
+        self.title_bar = TitleBar(
+            self,
+            is_pinned=self.note.is_pinned,
+            current_theme=self.note.theme,
+            initial_title=self.note.display_title
+        )
         self.title_bar.new_note_requested.connect(self.new_note_requested.emit)
         self.title_bar.close_note_requested.connect(self._on_close_clicked)
         self.title_bar.delete_permanently_requested.connect(self._on_delete_permanently_clicked)
         self.title_bar.pin_toggled.connect(self._on_pin_toggled)
         self.title_bar.theme_changed.connect(self._on_theme_changed)
+        self.title_bar.title_edited.connect(self._on_title_edited)
         central_layout.addWidget(self.title_bar)
 
         # Text Editor
@@ -109,7 +116,16 @@ class NoteWindow(QWidget):
 
     def _on_text_changed(self):
         self.note.content = self.editor.toPlainText()
+        self.title_bar.set_title_text(self.note.display_title)
         self.save_timer.start()
+        self.note_updated.emit()
+
+    def _on_title_edited(self, new_title: str):
+        self.note.title = new_title
+        if self.note.id:
+            self.db_manager.update_title(self.note.id, new_title)
+        self.title_bar.set_title_text(self.note.display_title)
+        self.note_updated.emit()
 
     def _persist_content(self):
         if self.note.id:

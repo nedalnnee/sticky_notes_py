@@ -91,10 +91,19 @@ class Note:
 
     @property
     def display_title(self) -> str:
-        """Return a clean title snippet for menus."""
-        if self.title:
-            return self.title[:25]
-        first_line = self.content.strip().split('\n')[0] if self.content else ""
-        if first_line:
-            return first_line[:25] + ("..." if len(first_line) > 25 else "")
-        return f"Untitled Note #{self.id}"
+        """Return title or first 2 words of content with a cap limit on length."""
+        MAX_LEN = 22
+
+        # 1. Custom title set by user
+        if self.title.strip():
+            t = self.title.strip()
+            return t[:MAX_LEN] + ("..." if len(t) > MAX_LEN else "")
+
+        # 2. Auto-extract first 2 words from note content
+        words = self.content.strip().split()
+        if words:
+            first_two = " ".join(words[:2])
+            return first_two[:MAX_LEN] + ("..." if len(first_two) > MAX_LEN else "")
+
+        # 3. Fallback for empty note
+        return f"Note #{self.id}" if self.id else "Untitled Note"
