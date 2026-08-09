@@ -46,12 +46,13 @@ class StickyNotesApp:
             welcome_note = Note(
                 title="Welcome",
                 content="Welcome to Sticky Notes!\n\n"
-                        "• Drag from header bar to move\n"
-                        "• Resize from bottom-right corner\n"
-                        "• Click ● to change color theme\n"
-                        "• Click ★ to pin always on top\n"
-                        "• Minimizes to Windows System Tray\n\n"
-                        "Enjoy writing notes!",
+                        "• Move: Drag from the top header bar\n"
+                        "• Resize: Drag the bottom-right corner grip\n"
+                        "• Theme: Click the Palette icon to change colors\n"
+                        "• Always on Top: Click the Pin icon to keep above apps\n"
+                        "• System Tray: Click the app icon near the Windows clock to quickly show or hide all notes\n"
+                        "• Persistence: All notes & positions auto-save automatically\n\n"
+                        "Happy note taking!",
                 x=200,
                 y=180,
                 width=320,
