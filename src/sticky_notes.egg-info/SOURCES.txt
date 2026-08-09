@@ -1,0 +1,14 @@
+README.md
+pyproject.toml
+src/database.py
+src/main.py
+src/models.py
+src/tray.py
+src/sticky_notes.egg-info/PKG-INFO
+src/sticky_notes.egg-info/SOURCES.txt
+src/sticky_notes.egg-info/dependency_links.txt
+src/sticky_notes.egg-info/requires.txt
+src/sticky_notes.egg-info/top_level.txt
+src/ui/note_window.py
+src/ui/styles.py
+src/ui/title_bar.py

@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: sticky-notes
+Version: 1.0.0
+Summary: Modern Python Sticky Notes for Windows with System Tray Integration
+Author: Sticky Notes App
+Requires-Python: >=3.9
+Requires-Dist: PyQt6>=6.6.0
+Requires-Dist: Pillow>=10.0.0
+Requires-Dist: pyinstaller>=6.0.0
