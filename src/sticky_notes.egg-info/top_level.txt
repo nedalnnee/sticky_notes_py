@@ -1,5 +1,0 @@
-database
-main
-models
-tray
-ui
