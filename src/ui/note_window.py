@@ -102,6 +102,8 @@ class NoteWindow(QWidget):
         theme = self.note.theme
         stylesheet = get_note_stylesheet(theme)
         self.setStyleSheet(stylesheet)
+        if hasattr(self, "title_bar"):
+            self.title_bar.update_theme_icons(theme)
 
     def _on_text_changed(self):
         self.note.content = self.editor.toPlainText()
