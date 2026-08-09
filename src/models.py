@@ -82,8 +82,19 @@ class Note:
     height: int = 320
     theme_name: str = DEFAULT_THEME_NAME
     is_pinned: bool = True
+    is_open: bool = True
     updated_at: float = field(default_factory=time.time)
 
     @property
     def theme(self) -> NoteTheme:
         return THEMES.get(self.theme_name, THEMES[DEFAULT_THEME_NAME])
+
+    @property
+    def display_title(self) -> str:
+        """Return a clean title snippet for menus."""
+        if self.title:
+            return self.title[:25]
+        first_line = self.content.strip().split('\n')[0] if self.content else ""
+        if first_line:
+            return first_line[:25] + ("..." if len(first_line) > 25 else "")
+        return f"Untitled Note #{self.id}"

@@ -11,7 +11,8 @@ from src.ui.title_bar import TitleBar
 
 class NoteWindow(QWidget):
     new_note_requested = pyqtSignal()
-    delete_requested = pyqtSignal(int)  # passes note_id
+    close_requested = pyqtSignal(int)               # Hide & mark is_open=0 in database
+    delete_permanently_requested = pyqtSignal(int)  # Remove completely from database
 
     def __init__(self, note: Note, db_manager: DatabaseManager):
         super().__init__()
@@ -65,9 +66,10 @@ class NoteWindow(QWidget):
         central_layout.setSpacing(0)
 
         # Custom Title Bar
-        self.title_bar = TitleBar(self, is_pinned=self.note.is_pinned)
+        self.title_bar = TitleBar(self, is_pinned=self.note.is_pinned, current_theme=self.note.theme)
         self.title_bar.new_note_requested.connect(self.new_note_requested.emit)
-        self.title_bar.delete_requested.connect(self._on_delete_clicked)
+        self.title_bar.close_note_requested.connect(self._on_close_clicked)
+        self.title_bar.delete_permanently_requested.connect(self._on_delete_permanently_clicked)
         self.title_bar.pin_toggled.connect(self._on_pin_toggled)
         self.title_bar.theme_changed.connect(self._on_theme_changed)
         central_layout.addWidget(self.title_bar)
@@ -134,8 +136,11 @@ class NoteWindow(QWidget):
         self.move(pos)
         self.resize(size)
 
-    def _on_delete_clicked(self):
-        self.delete_requested.emit(self.note.id)
+    def _on_close_clicked(self):
+        self.close_requested.emit(self.note.id)
+
+    def _on_delete_permanently_clicked(self):
+        self.delete_permanently_requested.emit(self.note.id)
 
     def save_geometry_state(self):
         geo = self.geometry()

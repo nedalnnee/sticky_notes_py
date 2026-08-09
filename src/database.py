@@ -37,39 +37,60 @@ class DatabaseManager:
                     height INTEGER DEFAULT 320,
                     theme_name TEXT DEFAULT 'yellow',
                     is_pinned INTEGER DEFAULT 1,
+                    is_open INTEGER DEFAULT 1,
                     updated_at REAL
                 )
             """)
+            
+            # Migration check: ensure is_open column exists in older database tables
+            cursor.execute("PRAGMA table_info(notes)")
+            columns = [column[1] for column in cursor.fetchall()]
+            if "is_open" not in columns:
+                cursor.execute("ALTER TABLE notes ADD COLUMN is_open INTEGER DEFAULT 1")
+
             conn.commit()
+
+    def _row_to_note(self, row: sqlite3.Row) -> Note:
+        return Note(
+            id=row["id"],
+            title=row["title"] or "",
+            content=row["content"] or "",
+            x=row["x"],
+            y=row["y"],
+            width=row["width"],
+            height=row["height"],
+            theme_name=row["theme_name"] or DEFAULT_THEME_NAME,
+            is_pinned=bool(row["is_pinned"]),
+            is_open=bool(row["is_open"]) if "is_open" in row.keys() else True,
+            updated_at=row["updated_at"] or time.time(),
+        )
 
     def get_all_notes(self) -> List[Note]:
         notes = []
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM notes ORDER BY id ASC")
+            cursor.execute("SELECT * FROM notes ORDER BY updated_at DESC")
             rows = cursor.fetchall()
             for row in rows:
-                note = Note(
-                    id=row["id"],
-                    title=row["title"] or "",
-                    content=row["content"] or "",
-                    x=row["x"],
-                    y=row["y"],
-                    width=row["width"],
-                    height=row["height"],
-                    theme_name=row["theme_name"] or DEFAULT_THEME_NAME,
-                    is_pinned=bool(row["is_pinned"]),
-                    updated_at=row["updated_at"] or time.time(),
-                )
-                notes.append(note)
+                notes.append(self._row_to_note(row))
+        return notes
+
+    def get_open_notes(self) -> List[Note]:
+        notes = []
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM notes WHERE is_open = 1 ORDER BY id ASC")
+            rows = cursor.fetchall()
+            for row in rows:
+                notes.append(self._row_to_note(row))
         return notes
 
     def create_note(self, note: Note) -> int:
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
-                INSERT INTO notes (title, content, x, y, width, height, theme_name, is_pinned, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO notes (title, content, x, y, width, height, theme_name, is_pinned, is_open, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 note.title,
                 note.content,
@@ -79,6 +100,7 @@ class DatabaseManager:
                 note.height,
                 note.theme_name,
                 1 if note.is_pinned else 0,
+                1 if note.is_open else 0,
                 time.time()
             ))
             conn.commit()
@@ -114,6 +136,14 @@ class DatabaseManager:
             cursor.execute("""
                 UPDATE notes SET is_pinned = ?, updated_at = ? WHERE id = ?
             """, (1 if is_pinned else 0, time.time(), note_id))
+            conn.commit()
+
+    def set_open_status(self, note_id: int, is_open: bool):
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE notes SET is_open = ?, updated_at = ? WHERE id = ?
+            """, (1 if is_open else 0, time.time(), note_id))
             conn.commit()
 
     def delete_note(self, note_id: int):

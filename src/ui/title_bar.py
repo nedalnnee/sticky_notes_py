@@ -1,6 +1,6 @@
 from PyQt6.QtCore import Qt, QPoint, QSize, pyqtSignal
 from PyQt6.QtWidgets import (
-    QFrame, QHBoxLayout, QLabel, QPushButton, QMenu, QWidget
+    QFrame, QHBoxLayout, QLabel, QPushButton, QMenu, QWidget, QMessageBox
 )
 
 from src.models import THEMES, NoteTheme
@@ -9,7 +9,8 @@ from src.ui.icons import load_svg_icon
 class TitleBar(QFrame):
     # Signals
     new_note_requested = pyqtSignal()
-    delete_requested = pyqtSignal()
+    close_note_requested = pyqtSignal()            # Hide/close note (keeps in library)
+    delete_permanently_requested = pyqtSignal()     # Delete permanently from database
     pin_toggled = pyqtSignal(bool)
     theme_changed = pyqtSignal(str)
 
@@ -48,7 +49,7 @@ class TitleBar(QFrame):
 
         # Theme color picker button
         self.btn_color = QPushButton()
-        self.btn_color.setToolTip("Change Color Theme")
+        self.btn_color.setToolTip("Options & Color Themes")
         self.btn_color.setProperty("class", "TitleBarButton")
         self.btn_color.setIconSize(icon_size)
         self.btn_color.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -63,14 +64,14 @@ class TitleBar(QFrame):
         self.btn_pin.clicked.connect(self._toggle_pin)
         layout.addWidget(self.btn_pin)
 
-        # Delete button
+        # Close button (Hides note to library)
         self.btn_delete = QPushButton()
         self.btn_delete.setObjectName("DeleteButton")
         self.btn_delete.setProperty("class", "TitleBarButton")
         self.btn_delete.setIconSize(icon_size)
-        self.btn_delete.setToolTip("Delete Note")
+        self.btn_delete.setToolTip("Close Note (Saved in Notes Library)")
         self.btn_delete.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.btn_delete.clicked.connect(self.delete_requested.emit)
+        self.btn_delete.clicked.connect(self.close_note_requested.emit)
         layout.addWidget(self.btn_delete)
 
         self.setFixedHeight(34)
@@ -103,10 +104,31 @@ class TitleBar(QFrame):
 
     def _show_color_menu(self):
         menu = QMenu(self)
+        
+        # Color palettes header
+        menu.addSection("Color Themes")
         for theme_key, theme_obj in THEMES.items():
             action = menu.addAction(f"  {theme_obj.display_name}")
             action.triggered.connect(lambda _, key=theme_key: self.theme_changed.emit(key))
+
+        menu.addSeparator()
+
+        # Delete permanently option
+        action_delete = menu.addAction("Delete Permanently")
+        action_delete.triggered.connect(self._confirm_delete_permanently)
+
         menu.exec(self.btn_color.mapToGlobal(QPoint(0, self.btn_color.height())))
+
+    def _confirm_delete_permanently(self):
+        reply = QMessageBox.question(
+            self,
+            "Delete Note",
+            "Are you sure you want to permanently delete this note?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            self.delete_permanently_requested.emit()
 
     # Dragging logic
     def mousePressEvent(self, event):

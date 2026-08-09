@@ -37,11 +37,16 @@ class StickyNotesApp:
         self.tray.new_note_requested.connect(self.create_new_note)
         self.tray.show_all_requested.connect(self.show_all_notes)
         self.tray.hide_all_requested.connect(self.hide_all_notes)
+        self.tray.note_selected.connect(self.open_or_focus_note)
         self.tray.exit_requested.connect(self.quit_app)
 
+    def _sync_tray_library(self):
+        all_notes = self.db_manager.get_all_notes()
+        self.tray.set_notes_list(all_notes)
+
     def run(self) -> int:
-        notes = self.db_manager.get_all_notes()
-        if not notes:
+        all_notes = self.db_manager.get_all_notes()
+        if not all_notes:
             # First launch: create welcome note
             welcome_note = Note(
                 title="Welcome",
@@ -50,8 +55,8 @@ class StickyNotesApp:
                         "• Resize: Drag the bottom-right corner grip\n"
                         "• Theme: Click the Palette icon to change colors\n"
                         "• Always on Top: Click the Pin icon to keep above apps\n"
-                        "• System Tray: Click the app icon near the Windows clock to quickly show or hide all notes\n"
-                        "• Persistence: All notes & positions auto-save automatically\n\n"
+                        "• Close Note: Click ✕ to hide (Saved to Notes Library)\n"
+                        "• System Tray: Right-click near clock to open Notes Library & restore any note\n\n"
                         "Happy note taking!",
                 x=200,
                 y=180,
@@ -59,27 +64,32 @@ class StickyNotesApp:
                 height=340,
                 theme_name=DEFAULT_THEME_NAME,
                 is_pinned=True,
+                is_open=True,
             )
             welcome_id = self.db_manager.create_note(welcome_note)
             welcome_note.id = welcome_id
-            notes = [welcome_note]
+            all_notes = [welcome_note]
 
-        for note in notes:
-            self._render_note_window(note)
+        self._sync_tray_library()
+
+        # Render only currently open notes
+        for note in all_notes:
+            if note.is_open:
+                self._render_note_window(note)
 
         return self.app.exec()
 
     def _render_note_window(self, note: Note) -> NoteWindow:
         win = NoteWindow(note, self.db_manager)
         win.new_note_requested.connect(self.create_new_note)
-        win.delete_requested.connect(self.delete_note)
+        win.close_requested.connect(self.close_note_to_library)
+        win.delete_permanently_requested.connect(self.delete_note_permanently)
         win.show()
         if note.id:
             self.windows[note.id] = win
         return win
 
     def create_new_note(self):
-        # Stagger position slightly for new notes
         count = len(self.windows)
         offset = (count * 25) % 200
 
@@ -91,30 +101,68 @@ class StickyNotesApp:
             height=300,
             theme_name=DEFAULT_THEME_NAME,
             is_pinned=True,
+            is_open=True,
         )
         note_id = self.db_manager.create_note(new_note)
         new_note.id = note_id
         win = self._render_note_window(new_note)
         win.editor.setFocus()
+        self._sync_tray_library()
 
-    def delete_note(self, note_id: int):
+    def open_or_focus_note(self, note_id: int):
+        if note_id in self.windows:
+            win = self.windows[note_id]
+            win.show()
+            win.activateWindow()
+            win.raise_()
+        else:
+            # Reopen note from database
+            all_notes = self.db_manager.get_all_notes()
+            target_note = next((n for n in all_notes if n.id == note_id), None)
+            if target_note:
+                target_note.is_open = True
+                self.db_manager.set_open_status(note_id, True)
+                win = self._render_note_window(target_note)
+                win.activateWindow()
+                self._sync_tray_library()
+
+    def close_note_to_library(self, note_id: int):
         if note_id in self.windows:
             win = self.windows.pop(note_id)
             win.close()
             win.deleteLater()
-            self.db_manager.delete_note(note_id)
+            self.db_manager.set_open_status(note_id, False)
+            self._sync_tray_library()
+
+    def delete_note_permanently(self, note_id: int):
+        if note_id in self.windows:
+            win = self.windows.pop(note_id)
+            win.close()
+            win.deleteLater()
+        self.db_manager.delete_note(note_id)
+        self._sync_tray_library()
 
     def show_all_notes(self):
-        for win in self.windows.values():
-            win.show()
-            win.activateWindow()
+        all_notes = self.db_manager.get_all_notes()
+        for note in all_notes:
+            if not note.is_open:
+                self.db_manager.set_open_status(note.id, True)
+                note.is_open = True
+
+        for note in all_notes:
+            if note.id not in self.windows:
+                self._render_note_window(note)
+            else:
+                self.windows[note.id].show()
+                self.windows[note.id].activateWindow()
+
+        self._sync_tray_library()
 
     def hide_all_notes(self):
         for win in self.windows.values():
             win.hide()
 
     def quit_app(self):
-        # Save geometry of all open windows before quit
         for win in self.windows.values():
             win.save_geometry_state()
         self.app.quit()
