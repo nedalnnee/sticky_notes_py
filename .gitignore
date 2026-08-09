@@ -1,0 +1,35 @@
+# Python Bytecode & Caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+.venv*/
+
+# Build & Distribution Artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+*.spec
+
+# SQLite Local Database
+*.db
+*.sqlite3
+StickyNotesApp/
+
+# IDE & Editor Settings
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+
+# PyInstaller Logs
+*.log
