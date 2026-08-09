@@ -45,12 +45,12 @@ class StickyNotesApp:
             # First launch: create welcome note
             welcome_note = Note(
                 title="Welcome",
-                content="Welcome to Sticky Notes! 📌\n\n"
-                        "• Drag from top bar to move\n"
+                content="Welcome to Sticky Notes!\n\n"
+                        "• Drag from header bar to move\n"
                         "• Resize from bottom-right corner\n"
-                        "• Click 🎨 to change color theme\n"
-                        "• Click 📌 to pin always on top\n"
-                        "• Minimize to Windows System Tray\n\n"
+                        "• Click ● to change color theme\n"
+                        "• Click ★ to pin always on top\n"
+                        "• Minimizes to Windows System Tray\n\n"
                         "Enjoy writing notes!",
                 x=200,
                 y=180,

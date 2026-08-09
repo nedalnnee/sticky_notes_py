@@ -1,14 +1,14 @@
-# Contributing to Sticky Notes 📌
+# Contributing to Sticky Notes
 
 Thank you for considering contributing to Sticky Notes! We welcome bug reports, feature suggestions, and pull requests to help improve the project.
 
 ---
 
-## 🛠️ Development Setup
+## Development Setup
 
 1. **Fork and Clone the Repository**:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/sticky_notes.cmd.git
+   git clone https://github.com/YOUR_USERNAME/sticky_notes.git
    cd sticky_notes
    ```
 
@@ -32,7 +32,7 @@ Thank you for considering contributing to Sticky Notes! We welcome bug reports, 
 
 ---
 
-## 🚀 Creating Pull Requests
+## Creating Pull Requests
 
 1. **Branch Naming**: Use descriptive branch names like `feature/custom-fonts` or `fix/tray-icon-click`.
 2. **Code Style**: Follow PEP 8 guidelines for Python code style.
@@ -41,6 +41,6 @@ Thank you for considering contributing to Sticky Notes! We welcome bug reports, 
 
 ---
 
-## 📄 License Agreement
+## License Agreement
 
 By contributing to this repository, you agree that your contributions will be licensed under the project's **PolyForm Noncommercial License 1.0.0** (free for personal/non-commercial use, strictly non-for-sale).

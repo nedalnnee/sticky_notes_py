@@ -32,26 +32,26 @@ class SystemTrayManager(QObject):
         self.menu = QMenu()
 
         # Action: New Note
-        self.action_new = QAction("➕ New Note", self)
+        self.action_new = QAction("New Note", self)
         self.action_new.triggered.connect(self.new_note_requested.emit)
         self.menu.addAction(self.action_new)
 
         self.menu.addSeparator()
 
         # Action: Toggle Show/Hide
-        self.action_toggle_visibility = QAction("🙈 Hide All Notes", self)
+        self.action_toggle_visibility = QAction("Hide All Notes", self)
         self.action_toggle_visibility.triggered.connect(self._toggle_visibility)
         self.menu.addAction(self.action_toggle_visibility)
 
         # Action: About
-        self.action_about = QAction("ℹ️ About Sticky Notes", self)
+        self.action_about = QAction("About Sticky Notes", self)
         self.action_about.triggered.connect(self._show_about)
         self.menu.addAction(self.action_about)
 
         self.menu.addSeparator()
 
         # Action: Exit
-        self.action_exit = QAction("🚪 Exit Sticky Notes", self)
+        self.action_exit = QAction("Exit Sticky Notes", self)
         self.action_exit.triggered.connect(self.exit_requested.emit)
         self.menu.addAction(self.action_exit)
 
@@ -71,11 +71,11 @@ class SystemTrayManager(QObject):
     def _toggle_visibility(self):
         if self.are_notes_visible:
             self.are_notes_visible = False
-            self.action_toggle_visibility.setText("👁️ Show All Notes")
+            self.action_toggle_visibility.setText("Show All Notes")
             self.hide_all_requested.emit()
         else:
             self.are_notes_visible = True
-            self.action_toggle_visibility.setText("🙈 Hide All Notes")
+            self.action_toggle_visibility.setText("Hide All Notes")
             self.show_all_requested.emit()
 
     def _show_about(self):

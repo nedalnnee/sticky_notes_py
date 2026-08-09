@@ -41,16 +41,16 @@ class TitleBar(QFrame):
         layout.addWidget(self.lbl_title, 1)
 
         # Theme color picker button
-        self.btn_color = QPushButton("🎨")
-        self.btn_color.setToolTip("Change Color")
+        self.btn_color = QPushButton("●")
+        self.btn_color.setToolTip("Change Color Theme")
         self.btn_color.setProperty("class", "TitleBarButton")
         self.btn_color.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_color.clicked.connect(self._show_color_menu)
         layout.addWidget(self.btn_color)
 
         # Pin / Always on top button
-        self.btn_pin = QPushButton("📌" if self.is_pinned else "📍")
-        self.btn_pin.setToolTip("Toggle Always on Top" if not self.is_pinned else "Pinned on Top")
+        self.btn_pin = QPushButton("★" if self.is_pinned else "☆")
+        self.btn_pin.setToolTip("Pinned (Always on Top)" if self.is_pinned else "Unpinned (Standard Window)")
         self.btn_pin.setProperty("class", "TitleBarButton")
         self.btn_pin.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_pin.clicked.connect(self._toggle_pin)
@@ -69,7 +69,7 @@ class TitleBar(QFrame):
 
     def set_pinned(self, is_pinned: bool):
         self.is_pinned = is_pinned
-        self.btn_pin.setText("📌" if self.is_pinned else "📍")
+        self.btn_pin.setText("★" if self.is_pinned else "☆")
         self.btn_pin.setToolTip("Pinned (Always on Top)" if self.is_pinned else "Unpinned (Standard Window)")
 
     def _toggle_pin(self):

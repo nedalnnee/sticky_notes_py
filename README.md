@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📌 Sticky Notes
+# Sticky Notes
 
 **A modern, lightweight Windows Sticky Notes application built with PyQt6 & SQLite.**
 
@@ -13,7 +13,7 @@
 
 ---
 
-## 🌟 Overview
+## Overview
 
 **Sticky Notes** is a desktop application designed to stay easily accessible on your screen. It features frameless floating note windows, always-on-top pin capabilities, customizable pastel & dark color themes, and automatic SQLite database saving.
 
@@ -21,19 +21,19 @@ The application runs directly in the **Windows System Tray** (notification area)
 
 ---
 
-## ✨ Features
+## Features
 
-- 📌 **Always-on-Top Toggle**: Pin notes to float above all active applications (browsers, IDEs, games) or unpin to behave like standard windows.
-- 🎨 **6 Theme Palettes**: Classic Yellow, Soft Lavender, Dark Charcoal, Sky Blue, Mint Green, and Rose Pink.
-- 🖱️ **Frameless & Draggable**: Sleek header bar with smooth click-and-drag window movement.
-- 📐 **Dynamic Resize Grip**: Built-in size grip handle at the bottom-right corner for easy resizing.
-- 💾 **SQLite Persistence**: Auto-saves note content, screen position $(X, Y)$, dimensions $(\text{Width}, \text{Height})$, theme, and pin states in real-time (`%APPDATA%\StickyNotesApp\notes.db`).
-- 🔔 **Windows System Tray**: Minimizes directly to the taskbar tray with right-click actions (*New Note*, *Show/Hide All*, *About*, *Exit*).
-- 📦 **Standalone Executable**: Easily packageable into a single self-contained `StickyNotes.exe` via PyInstaller.
+- **Always-on-Top Toggle**: Pin notes to float above all active applications (browsers, IDEs, games) or unpin to behave like standard windows.
+- **6 Theme Palettes**: Classic Yellow, Soft Lavender, Dark Charcoal, Sky Blue, Mint Green, and Rose Pink.
+- **Frameless & Draggable**: Sleek header bar with smooth click-and-drag window movement.
+- **Dynamic Resize Grip**: Built-in size grip handle at the bottom-right corner for easy resizing.
+- **SQLite Persistence**: Auto-saves note content, screen position $(X, Y)$, dimensions $(\text{Width}, \text{Height})$, theme, and pin states in real-time (`%APPDATA%\StickyNotesApp\notes.db`).
+- **Windows System Tray**: Minimizes directly to the taskbar tray with right-click actions (*New Note*, *Show/Hide All*, *About*, *Exit*).
+- **Standalone Executable**: Easily packageable into a single self-contained `StickyNotes.exe` via PyInstaller.
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -68,7 +68,7 @@ The application runs directly in the **Windows System Tray** (notification area)
 
 ---
 
-## 📦 Building Standalone `.exe`
+## Building Standalone Executable
 
 To package the application into a standalone Windows executable (`dist/StickyNotes.exe`):
 
@@ -80,7 +80,7 @@ The compiled binary will be generated at `dist/StickyNotes.exe` and is ready to 
 
 ---
 
-## 📂 Project Architecture
+## Project Architecture
 
 ```
 sticky_notes/
@@ -112,11 +112,11 @@ sticky_notes/
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **PolyForm Noncommercial License 1.0.0**.
 
-- ✅ **Free** for personal, educational, and non-commercial use.
-- ❌ **Strictly Non-Commercial / Not For Sale**: You may not sell, sublicense, or monetize this software or derivative works.
+- Free for personal, educational, and non-commercial use.
+- Strictly Non-Commercial / Not For Sale: You may not sell, sublicense, or monetize this software or derivative works.
 
 For full license terms, see the [LICENSE](file:///c:/Users/dell/Desktop/sticky_notes/LICENSE) file.
