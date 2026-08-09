@@ -102,7 +102,7 @@ class SystemTrayManager(QObject):
         QMessageBox.about(
             None,
             "About Sticky Notes",
-            "<h3>Sticky Notes v1.0</h3>"
+            "<h3>Sticky Notes v1.1.0</h3>"
             "<p>A lightweight, elegant Windows Sticky Notes application built with PyQt6 & SQLite.</p>"
             "<ul>"
             "<li>Frameless floating windows with custom themes</li>"

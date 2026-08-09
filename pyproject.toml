@@ -1,6 +1,6 @@
 [project]
 name = "sticky-notes"
-version = "1.0.0"
+version = "1.1.0"
 description = "Modern Python Sticky Notes for Windows with System Tray Integration"
 authors = [{ name = "Sticky Notes App" }]
 requires-python = ">=3.9"
